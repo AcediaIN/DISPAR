@@ -1,0 +1,33 @@
+using System;
+using System.Text;
+using System.Threading;
+
+class Program
+{
+    static EventWaitHandle eventHandle = new AutoResetEvent(false);
+    public static void Main_Encoding()
+    {
+        Console.OutputEncoding = Encoding.UTF8;
+    }
+
+    static void Main(string[] args)
+    {
+        Main_Encoding();
+        Thread t1 = new Thread(Event);
+        t1.Start();
+
+        Console.WriteLine("Main очікує на сигнал про event...");
+
+        eventHandle.WaitOne();
+
+        Console.WriteLine("Main отримав сигнал і продовжує виконання");
+    }
+
+    static void Event()
+    {
+        Console.WriteLine("Event виконує роботу...");
+        Thread.Sleep(2000);
+        Console.WriteLine("Event завершив роботу та каже про event");
+        eventHandle.Set();
+    }
+}
