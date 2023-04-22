@@ -1,0 +1,49 @@
+using System;
+using System.Text;
+using System.Threading;
+
+class Program
+{
+    public static void Main_Encoding()
+    {
+        Console.OutputEncoding = Encoding.UTF8;
+    }
+
+    static Mutex mutex = new Mutex();
+
+    static void Main(string[] args)
+    {
+        Main_Encoding();
+
+        // Запускаємо два потоки
+        Thread t1 = new Thread(DoWork);
+        Thread t2 = new Thread(DoWork);
+
+        t1.Start();
+        t2.Start();
+
+        t1.Join();
+        t2.Join();
+
+        Console.WriteLine("Робота завершена!");
+        Console.ReadKey();
+    }
+
+    static void DoWork()
+    {
+        Console.WriteLine($"Потік {Thread.CurrentThread.ManagedThreadId} спробує отримати доступ до ресурсу.");
+
+        // Очікуємо, доки отримаємо доступ до об'єкту mutex
+        mutex.WaitOne();
+
+        Console.WriteLine($"Потік {Thread.CurrentThread.ManagedThreadId} отримав доступ до ресурсу.");
+
+        // Імітуємо довгу операцію
+        Thread.Sleep(1000);
+
+        Console.WriteLine($"Потік {Thread.CurrentThread.ManagedThreadId} звільнив ресурс.");
+
+        // Звільняємо об'єкт mutex, щоб інші потоки могли отримати доступ до ресурсу
+        mutex.ReleaseMutex();
+    }
+}
