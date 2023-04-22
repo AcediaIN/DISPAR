@@ -13,11 +13,14 @@ class Program
     static void Main(string[] args)
     {
         Main_Encoding();
+        
+        // Створення та запуск потоку
         Thread t1 = new Thread(Event);
         t1.Start();
 
         Console.WriteLine("Main очікує на сигнал про event...");
 
+        // Очікування на сигнал від Event
         eventHandle.WaitOne();
 
         Console.WriteLine("Main отримав сигнал і продовжує виконання");
@@ -27,6 +30,8 @@ class Program
     {
         Console.WriteLine("Event виконує роботу...");
         Thread.Sleep(2000);
+        
+        // Завершення роботи Event та встановлення сигналу
         Console.WriteLine("Event завершив роботу та каже про event");
         eventHandle.Set();
     }
