@@ -9,12 +9,14 @@ class Program
         Console.OutputEncoding = Encoding.UTF8;
     }
 
+    // Створення об'єкту семафора з початковим значенням 2 і максимальним значенням 2
     static Semaphore semaphore = new Semaphore(2, 2);
 
     static void Main(string[] args)
     {
         for (int i = 1; i <= 5; i++)
         {
+            // Створення 5 потоків і запуск їх виконання
             Thread t = new Thread(WorkerThread);
             t.Start(i);
         }
@@ -25,18 +27,23 @@ class Program
     static void WorkerThread(object data)
     {
         Main_Encoding();
+        
+        // Отримання номеру потока
         int threadId = (int)data;
 
         Console.WriteLine($"Потік {threadId} очікує входу в семафор.");
-
+        
+        // Очікування доступу до ресурсів, захищених семафором
         semaphore.WaitOne();
 
         Console.WriteLine($"Потік {threadId} увійшов у семафор.");
 
+        // Імітація виконання роботи потоку
         Thread.Sleep(2000);
 
         Console.WriteLine($"Потік {threadId} випускає семафор.");
 
+        // Звільнення семафору після виконання роботи потоку
         semaphore.Release();
     }
 }
