@@ -1,0 +1,42 @@
+using System;
+using System.Text;
+using System.Threading;
+
+class Program
+{
+    public static void Main_Encoding()
+    {
+        Console.OutputEncoding = Encoding.UTF8;
+    }
+
+    static Semaphore semaphore = new Semaphore(2, 2);
+
+    static void Main(string[] args)
+    {
+        for (int i = 1; i <= 5; i++)
+        {
+            Thread t = new Thread(WorkerThread);
+            t.Start(i);
+        }
+
+        Console.ReadLine();
+    }
+
+    static void WorkerThread(object data)
+    {
+        Main_Encoding();
+        int threadId = (int)data;
+
+        Console.WriteLine($"Потік {threadId} очікує входу в семафор.");
+
+        semaphore.WaitOne();
+
+        Console.WriteLine($"Потік {threadId} увійшов у семафор.");
+
+        Thread.Sleep(2000);
+
+        Console.WriteLine($"Потік {threadId} випускає семафор.");
+
+        semaphore.Release();
+    }
+}
