@@ -6,7 +6,7 @@ class Program
     static void Main()
     {
         // Виводимо MessageBox з повідомленням
-        MessageBox.Show("Привіт світ!");
+        MessageBox.Show("Hello World!");
 
         // Виводимо MessageBox зі списком кнопок та вибором користувача
         DialogResult result = MessageBox.Show("Чи подобається тобі програмування на C#?",
