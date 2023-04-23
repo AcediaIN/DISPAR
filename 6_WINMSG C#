@@ -9,21 +9,21 @@ class Program
         MessageBox.Show("Привіт світ!");
 
         // Виводимо MessageBox зі списком кнопок та вибором користувача
-        DialogResult result = MessageBox.Show("Чи подобається Вам програмування на C#?",
+        DialogResult result = MessageBox.Show("Чи подобається тобі програмування на C#?",
             "Запитання", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
         // Виводимо повідомлення залежно від вибору користувача
         if (result == DialogResult.Yes)
         {
-            MessageBox.Show("Чудово! Це дійсно цікаво!");
+            MessageBox.Show("Файно!");
         }
         else if (result == DialogResult.No)
         {
-            MessageBox.Show("Шкода, що Вам не подобається...");
+            MessageBox.Show("Шкода, що тобі не подобається");
         }
         else if (result == DialogResult.Cancel)
         {
-            MessageBox.Show("Окей, сподіваємось, що наступного разу Вам сподобається!");
+            MessageBox.Show("Окей, сподіваюсь, що наступного разу тобі сподобається!");
         }
 
         // Використовування класу MessageBox для виводу повідомлення з інформацією, у разі необхідності
