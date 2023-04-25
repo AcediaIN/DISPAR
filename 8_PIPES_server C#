@@ -1,39 +1,29 @@
 using System;
 using System.IO.Pipes;
+using System.Text;
+using System.Diagnostics;
 
-class Program
+class ServerProgram
 {
-    public static void Main_Encoding()
+    static void Main()
     {
-        Console.OutputEncoding = Encoding.UTF8;
-    }
+        const string pipeName = "myPipe";
+        const int bufferSize = 4096;
+        byte[] sendData = Encoding.UTF8.GetBytes("Hello from server!");
 
-    static void Main(string[] args)
-    {
-        Main_Encoding();
+        var server = new NamedPipeServerStream(pipeName);
+        server.WaitForConnection();
 
-        using (NamedPipeServerStream pipeServer = new NamedPipeServerStream("testpipe", PipeDirection.InOut))
-        {
-            Console.WriteLine("Named pipe server waiting for connection...");
-            pipeServer.WaitForConnection();
+        var stopwatch = Stopwatch.StartNew();
 
-            Console.WriteLine("Client connected to named pipe server.");
+        server.Write(sendData, 0, sendData.Length);
 
-            // Отримуємо повідомлення від клієнта
-            byte[] buffer = new byte[255];
-            int bytesRead = pipeServer.Read(buffer, 0, 255);
-            string message = System.Text.Encoding.UTF8.GetString(buffer, 0, bytesRead);
-            Console.WriteLine("Received message from client: {0}", message);
+        stopwatch.Stop();
 
-            // Відправляємо відповідь клієнту
-            byte[] responseBytes = System.Text.Encoding.UTF8.GetBytes("Server received message: " + message);
-            pipeServer.Write(responseBytes, 0, responseBytes.Length);
+        double transferSpeed = (sendData.Length ) / (double)stopwatch.ElapsedMilliseconds;
+        transferSpeed = transferSpeed * 1000;
+        Console.WriteLine("Transfer speed: " + transferSpeed.ToString("0.00") + " MB/s");
 
-            // Закриваємо з'єднання
-            pipeServer.WaitForPipeDrain();
-            pipeServer.Disconnect();
-        }
-
-        Console.WriteLine("Server closed.");
+        server.Dispose();
     }
 }
