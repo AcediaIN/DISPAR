@@ -3,8 +3,15 @@ using System.IO.Pipes;
 
 class Program
 {
+    public static void Main_Encoding()
+    {
+        Console.OutputEncoding = Encoding.UTF8;
+    }
+
     static void Main(string[] args)
     {
+        Main_Encoding();
+
         using (NamedPipeServerStream pipeServer = new NamedPipeServerStream("testpipe", PipeDirection.InOut))
         {
             Console.WriteLine("Named pipe server waiting for connection...");
