@@ -1,0 +1,30 @@
+using System;
+using System.IO.Pipes;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        using (NamedPipeClientStream pipeClient = new NamedPipeClientStream(".", "testpipe", PipeDirection.InOut))
+        {
+            Console.WriteLine("Attempting to connect to pipe...");
+            pipeClient.Connect();
+
+            Console.WriteLine("Connected to pipe.");
+            Console.Write("Enter message: ");
+            string message = Console.ReadLine();
+
+            // Відправляємо повідомлення до сервера
+            byte[] messageBytes = System.Text.Encoding.UTF8.GetBytes(message);
+            pipeClient.Write(messageBytes, 0, messageBytes.Length);
+
+            // Отримуємо відповідь від сервера
+            byte[] buffer = new byte[255];
+            int bytesRead = pipeClient.Read(buffer, 0, 255);
+            string response = System.Text.Encoding.UTF8.GetString(buffer, 0, bytesRead);
+            Console.WriteLine("Received response from server: {0}", response);
+        }
+
+        Console.WriteLine("Client closed.");
+    }
+}
