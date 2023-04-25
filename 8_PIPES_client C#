@@ -1,37 +1,24 @@
 using System;
 using System.IO.Pipes;
+using System.Text;
+using System.Diagnostics;
 
-class Program
+class ClientProgram
 {
-    public static void Main_Encoding()
+    static void Main()
     {
-        Console.OutputEncoding = Encoding.UTF8;
-    }
+        const string pipeName = "myPipe";
+        const int bufferSize = 4096;
+        byte[] receiveData = new byte[bufferSize];
 
-    static void Main(string[] args)
-    {
-        Main_Encoding();
+        var client = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut);
+        client.Connect();
 
-        using (NamedPipeClientStream pipeClient = new NamedPipeClientStream(".", "testpipe", PipeDirection.InOut))
-        {
-            Console.WriteLine("Attempting to connect to named pipe server...");
-            pipeClient.Connect();
+        int bytesRead = client.Read(receiveData, 0, bufferSize);
 
-            Console.WriteLine("Connected to named pipe server.");
-            Console.Write("Enter message: ");
-            string message = Console.ReadLine();
+        string receivedMessage = Encoding.UTF8.GetString(receiveData, 0, bytesRead);
+        Console.WriteLine("Received message: " + receivedMessage);
 
-            // Відправляємо повідомлення до сервера
-            byte[] messageBytes = System.Text.Encoding.UTF8.GetBytes(message);
-            pipeClient.Write(messageBytes, 0, messageBytes.Length);
-
-            // Отримуємо відповідь від сервера
-            byte[] buffer = new byte[255];
-            int bytesRead = pipeClient.Read(buffer, 0, 255);
-            string response = System.Text.Encoding.UTF8.GetString(buffer, 0, bytesRead);
-            Console.WriteLine("Received response from server: {0}", response);
-        }
-
-        Console.WriteLine("Client closed.");
+        client.Dispose();
     }
 }
