@@ -5,8 +5,15 @@ using System.Text;
 
 class Program
 {
+    public static void Main_Encoding()
+    {
+        Console.OutputEncoding = Encoding.UTF8;
+    }
+
     static void Main(string[] args)
     {
+        Main_Encoding();
+
         // Створюємо TCP-сервер на порту 12345
         TcpListener server = new TcpListener(IPAddress.Any, 12345);
         server.Start();
