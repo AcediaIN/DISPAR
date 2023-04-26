@@ -1,24 +1,44 @@
-using System;
 using System.IO.Pipes;
-using System.Text;
-using System.Diagnostics;
 
-class ClientProgram
+namespace SpeedMeasurement.Client
 {
-    static void Main()
+    class ClientPipe
     {
-        const string pipeName = "myPipe";
-        const int bufferSize = 4096;
-        byte[] receiveData = new byte[bufferSize];
+        public const string PipeName = "test-pipe";
+        public const int BufferSize = 1024 * 1024 * 1024;
 
-        var client = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut);
-        client.Connect();
+        private readonly NamedPipeClientStream clientStream;
 
-        int bytesRead = client.Read(receiveData, 0, bufferSize);
+        public ClientPipe()
+        {
+            clientStream = new NamedPipeClientStream(".", PipeName, PipeDirection.InOut);
+        }
 
-        string receivedMessage = Encoding.UTF8.GetString(receiveData, 0, bytesRead);
-        Console.WriteLine("Received message: " + receivedMessage);
+        public async Task Connect()
+        {
+            await clientStream.ConnectAsync();
+            Console.WriteLine("Connected.");
+        }
 
-        client.Dispose();
+        public async Task SendMessage()
+        {
+            await clientStream.WriteAsync(new byte[BufferSize]);
+            Console.WriteLine($"Message sent with size {BufferSize}");
+        }
+    }
+
+    internal class Program
+    {
+        static async Task Main(string[] args)
+        {
+            var client = new ClientPipe();
+
+            await client.Connect();
+
+            while (true)
+            {
+                await client.SendMessage();
+            }
+        }
     }
 }
