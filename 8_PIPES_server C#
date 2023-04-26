@@ -1,29 +1,50 @@
-using System;
-using System.IO.Pipes;
-using System.Text;
 using System.Diagnostics;
+using System.IO.Pipes;
+using System.Timers;
 
-class ServerProgram
+namespace SpeedMeasurement.Server
 {
-    static void Main()
+    class ServerPipe
     {
-        const string pipeName = "myPipe";
-        const int bufferSize = 4096;
-        byte[] sendData = Encoding.UTF8.GetBytes("Hello from server!");
+        public const string PipeName = "test-pipe";
+        public const int BufferSize = 1024 * 1024 * 1024;
 
-        var server = new NamedPipeServerStream(pipeName);
-        server.WaitForConnection();
+        private readonly NamedPipeServerStream serverStream;
 
-        var stopwatch = Stopwatch.StartNew();
+        public ServerPipe()
+        {
+            serverStream = new NamedPipeServerStream(PipeName);
+        }
 
-        server.Write(sendData, 0, sendData.Length);
+        public async Task Listen()
+        {
+            await serverStream.WaitForConnectionAsync();
+            Console.WriteLine("Client connected.");
 
-        stopwatch.Stop();
+            var buffer = new Memory<byte>(new byte[BufferSize]);
 
-        double transferSpeed = (sendData.Length ) / (double)stopwatch.ElapsedMilliseconds;
-        transferSpeed = transferSpeed * 1000;
-        Console.WriteLine("Transfer speed: " + transferSpeed.ToString("0.00") + " MB/s");
+            while (true)
+            {
+                var stopwatch = Stopwatch.StartNew();
 
-        server.Dispose();
+                var bytesRead = await serverStream.ReadAsync(buffer);
+
+                stopwatch.Stop();
+
+                var mbS = (bytesRead / (stopwatch.ElapsedMilliseconds / 1000.0)) / Math.Pow(1024, 2);
+
+                Console.WriteLine($"Speed {mbS.ToString("0.0")} Mb/s");
+            }
+        }
+    }
+
+    internal class Program
+    {
+        static async Task Main(string[] args)
+        {
+            var server = new ServerPipe();
+
+            await server.Listen();
+        }
     }
 }
