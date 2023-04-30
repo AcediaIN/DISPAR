@@ -1,0 +1,15 @@
+using SheredMemorySpeedMeasurement.Lib;
+using System.IO.MemoryMappedFiles;
+
+
+using var mmf = MemoryMappedFile.OpenExisting(Constants.MapName);
+
+var mutex = Mutex.OpenExisting(Constants.MutexName);
+mutex.WaitOne();
+
+using var stream = mmf.CreateViewStream(1, 0);
+var writer = new BinaryWriter(stream);
+
+writer.Write(new byte[Constants.SizeToSend]);
+
+mutex.ReleaseMutex();
