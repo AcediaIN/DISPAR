@@ -1,0 +1,11 @@
+namespace SheredMemorySpeedMeasurement.Lib
+{
+    public static class Constants
+    {
+        public const string MapName = "test-map";
+
+        public const string MutexName = "test-mutex";
+
+        public const int SizeToSend = 1024 * 1024 * 600;
+    }
+}
