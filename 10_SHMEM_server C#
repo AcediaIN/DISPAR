@@ -1,0 +1,29 @@
+using SheredMemorySpeedMeasurement.Lib;
+using System.Diagnostics;
+using System.IO.MemoryMappedFiles;
+using System.Threading;
+
+using var mmf = MemoryMappedFile.CreateNew(Constants.MapName, 1024 * 1024 * 650);
+
+bool mutexCreated;
+var sharedMutex = new Mutex(true, Constants.MutexName, out mutexCreated);
+
+sharedMutex.ReleaseMutex();
+
+Console.WriteLine("Start Client and press ENTER to continue.");
+Console.ReadLine();
+
+sharedMutex.WaitOne();
+
+using var stream = mmf.CreateViewStream();
+
+
+var reader =  new StreamReader(stream);
+
+var stopwatch = Stopwatch.StartNew();
+
+reader.ReadToEnd();
+
+var mbS = (Constants.SizeToSend / (stopwatch.ElapsedMilliseconds / 1000.0)) / Math.Pow(1024, 2);
+
+Console.WriteLine($"Speed {mbS} Mb/S");
