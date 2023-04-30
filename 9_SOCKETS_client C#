@@ -1,0 +1,13 @@
+using System.Net.Sockets;
+
+const int BufferSize = 1024 * 1024 * 1024;
+
+var client = new TcpClient();
+client.Connect("localhost", 7890);
+Console.WriteLine("Connected to localhost:7890");
+
+while (true)
+{
+    client.GetStream().Write(new byte[BufferSize]);
+    Console.WriteLine("Message sent with size 3 Mb");
+}
