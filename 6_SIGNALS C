@@ -1,0 +1,85 @@
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <limits.h>
+
+static void signal_abrt_handler(int signal) {
+    puts("Handling abort signal.");
+    exit(EXIT_FAILURE);
+}
+
+static void signal_fpe_handler(int signal) {
+    puts("Handling floating point exception signal.");
+    exit(EXIT_FAILURE);
+}
+
+static void signal_ill_handler(int signal) {
+    puts("Handling illegal signal.");
+    exit(EXIT_FAILURE);
+}
+
+static void signal_int_handler(int signal) {
+    puts("Handling interrupt signal.");
+    puts("Gracefully shutting down the program.");
+    exit(EXIT_SUCCESS);
+}
+
+static void signal_segv_handler(int signal) {
+    puts("Handling segmentation violation signal.");
+    exit(EXIT_FAILURE);
+}
+
+static void signal_term_handler(int signal) {
+    puts("Handling terminate signal.");
+    exit(EXIT_SUCCESS);
+}
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        puts("Please provide signal number from 1 to 6 as argument.");
+        exit(EXIT_FAILURE);
+    }
+
+    const long SIGNAL_SIM = strtol(argv[1], NULL, 10);
+    // printf("Parsed signal to simulate %d", signal_sim);
+
+    signal(SIGABRT, signal_abrt_handler);
+    signal(SIGFPE, signal_fpe_handler);
+    signal(SIGILL, signal_ill_handler);
+    signal(SIGINT, signal_int_handler);
+    signal(SIGSEGV, signal_segv_handler);
+    signal(SIGTERM, signal_term_handler);
+
+    if (SIGNAL_SIM == 1) {
+        abort();
+    }
+
+    if (SIGNAL_SIM == 2) {
+        // Floating point exception
+        float res = 1 / 0;
+    }
+
+    if (SIGNAL_SIM == 3) {
+        // Illegal operation
+        __asm__ ("mov 1337, %rax\n\t");
+    }
+
+    if (SIGNAL_SIM == 4) {
+        puts("Press CTRL+C to interrupt.");
+        for (;;) sleep(1);
+    }
+
+    if (SIGNAL_SIM == 5) {
+        // Out of bounds operation
+        int arr[] = { 1337 };
+        int res = arr[INT_MAX];
+    }
+
+    if (SIGNAL_SIM == 6) {
+        puts("Terminate this program externally.");
+        for (;;) sleep(1);
+    }
+
+    return EXIT_SUCCESS;
+}
