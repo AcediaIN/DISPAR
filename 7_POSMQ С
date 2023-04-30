@@ -1,0 +1,44 @@
+#include <mqueue.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+#include <unistd.h>
+#include <string.h>
+#include <signal.h>
+
+static void on_interrupt(int signal) {
+    mq_unlink("/accumulator");
+    exit(EXIT_SUCCESS);
+}
+
+void main(int argc, char* argv[]) {
+    signal(SIGINT, on_interrupt);
+
+    mqd_t mqd_writer = mq_open("/accumulator", O_WRONLY | O_CREAT, 0664, NULL);
+
+    const char* SEND_MSG = "Hello world!";
+    
+    mq_send(mqd_writer, SEND_MSG, strlen(SEND_MSG), 0);
+
+    printf("Message sent: %s\n", SEND_MSG);
+
+    mq_close(mqd_writer);
+
+    mqd_t mqd_reader = mq_open("/accumulator", O_RDONLY, 0664, NULL);
+
+    struct mq_attr mqattr;
+    mq_getattr(mqd_reader, &mqattr);
+
+    const size_t BUF_SIZE = mqattr.mq_msgsize;
+
+    char recv_buf[BUF_SIZE];
+    unsigned int msg_prio;
+
+    int bytes_read = mq_receive(mqd_reader, &recv_buf[0], BUF_SIZE, &msg_prio);
+
+    if (bytes_read > 0) printf("Received %d bytes: %s\n", bytes_read, recv_buf);
+
+    mq_close(mqd_reader);
+
+    exit(EXIT_SUCCESS);
+}
