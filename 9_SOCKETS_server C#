@@ -1,0 +1,28 @@
+using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
+
+const int BufferSize = 1024 * 1024 * 1024;
+
+var server = new TcpListener(IPAddress.Any, 7890);
+
+server.Start();
+Console.WriteLine("Tcp seerver up.");
+
+var connectedClient = server.AcceptTcpClient();
+Console.WriteLine($"Client connected: {connectedClient.Client.RemoteEndPoint}");
+
+var buffer = new Memory<byte>(new byte[BufferSize]);
+
+while (true)
+{
+    var stopwatch = Stopwatch.StartNew();
+
+    var bytesRead = await connectedClient.GetStream().ReadAsync(buffer);
+
+    stopwatch.Stop();
+
+    var mbS = (bytesRead / (stopwatch.ElapsedMilliseconds / 1000.0)) / Math.Pow(1024, 2);
+
+    Console.WriteLine($"Speed {mbS.ToString("0.0")} Mb/s");
+}
